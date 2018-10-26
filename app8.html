@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Travel</title>
+    <style>
+      #right-panel {
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+
+      #right-panel select, #right-panel input {
+        font-size: 15px;
+      }
+
+      #right-panel select {
+        width: 100%;
+      }
+
+      #right-panel i {
+        font-size: 12px;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+        float: left;
+        width: 70%;
+        height: 100%;
+      }
+      #right-panel {
+        margin: 20px;
+        border-width: 2px;
+        width: 20%;
+        height: 400px;
+        float: left;
+        text-align: left;
+        padding-top: 0;
+      }
+      #directions-panel {
+        margin-top: 10px;
+        background-color: #FFEE77;
+        padding: 10px;
+        overflow: scroll;
+        height: 174px;
+      }
+      #che1 {
+        display:none ;
+      }
+      #che2 {
+        display:none ;
+      }
+      #che3 {
+        display:none ;
+      }
+      #pun1 {
+        display: none;
+      }
+      #pun2 {
+        display: none;
+      }
+      #ban1 {
+        display: none;
+      }
+      #ban2 {
+        display: none;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="right-panel">
+    <div>
+
+    <b>Start:</b>
+    <select id="start">
+      <option value="Hyderabad">Hyderabad</option></select>
+      <br>
+    <b>End:</b>
+    <!-- Destinations-->
+    <select id="end">
+      <option value="Pune" onclick="pune()">Pune</option>
+      <option value="Chennai" onclick="chen()">Chennai</option>
+      <option value="Bengaluru" onclick="beng()">Bengaluru</option>
+    </select>
+  
+    <b>Places affected:</b> <br>
+
+    Click or Ctrl+Click on multiple options to avoid that waypoint
+    <br>
+    <select multiple id="waypoints">
+    <!--Waypoints and alternate routes-->
+      <option value="Tirupati" id="che1">Nellore</option>
+      <option value="Markapur" id="che2">Ongole</option>
+      <option value="Suryapet" id="che3">Nalgonda</option>
+      <option value="Osmanabad" id="pun1">Solapur</option>
+      <option value="Vikarabad" id="pun2">Sangareddi</option>
+      <option value="Raichur" id="ban1">Kurnool</option>
+      <option value="Narapala" id="ban2">Anantapur</option>
+    </select>
+    <br>
+    
+    <br>
+      <input type="submit" id="submit">
+    </div>
+    <div id="directions-panel"></div>
+    </div>
+    <script>
+      function initMap()
+       {
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 6,
+          center: {lat: 17.3850, lng: 78.4867}
+        });
+        directionsDisplay.setMap(map);
+
+        document.getElementById('submit').addEventListener('click', function() {
+          calculateAndDisplayRoute(directionsService, directionsDisplay);
+        });
+      }
+      function pune(){
+         // AJAX call to Weather API for Pune
+        $(document).ready(()=>{
+          var APIkey="fc0327598ba370a977a33d939e84e9ba";
+              let request=$.ajax({
+                url:'http://api.openweathermap.org/data/2.5/weather?q=Pune,IN'+'&appid='+APIkey,
+                method: 'GET',
+                crossDomain: true,
+              });
+              request.done((data)=>{
+                console.log(data);
+                //weather info 
+                alert("Weather at your destination:\nHumidity:"+data.main.humidity+"\nPressure:"+data.main.pressure+"\nTemperature:"+data.main.temp);
+                alert(data.weather[0].main+":"+data.weather[0].description);
+                //alert in case of poor weather at destination or at waypoints
+                if (data.main.pressure<1000)
+                {
+                  alert("Low Pressure: Impending cyclones in Pune\n Cancel your trip!");
+                }
+                else{
+                alert("Bad weather conditions at Solapur & Sangareddi: take alternate safe routes!!");
+                if (data.weather[0].description=="drizzle" || data.weather[0].description=="light rain" || data.weather[0].description=="moderate rain" || data.weather[0].description=="proximity shower rain")
+                {
+                  alert("Drizzle: Carry your umbrella");
+                }
+                if (data.weather[0],description=="light snow")
+                {
+                  alert("Snow: Carry your coat!!!");
+                }}
+              });
+            })  
+        //to hide dropdown options based on choice of destination
+        document.getElementById('pun1').style.display="block";
+        document.getElementById('pun2').style.display="block";
+        document.getElementById('che1').style.display="none";
+        document.getElementById('che2').style.display="none";
+        document.getElementById('che3').style.display="none";
+        document.getElementById('ban1').style.display="none";
+        document.getElementById('ban2').style.display="none";
+        
+      }
+      function chen(){
+        // AJAX call to Weather API at Chennai
+        $(document).ready(()=>{
+          var APIkey="fc0327598ba370a977a33d939e84e9ba";
+              let request=$.ajax({
+                url:'http://api.openweathermap.org/data/2.5/weather?q=Chennai,IN'+'&appid='+APIkey,
+                method: 'GET',
+                crossDomain: true,
+              });
+              request.done((data)=>{
+                console.log(data);
+                //weather info 
+                alert("Weather at your destination:\nHumidity:"+data.main.humidity+"\nPressure:"+data.main.pressure+"\nTemperature:"+data.main.temp);
+                alert(data.weather[0].main+":"+data.weather[0].description);
+                //alerts in case of poor weather at destination or waypoints
+                if (data.main.pressure<1000)
+                {
+                  alert("Low Pressure: Impending cyclones in Chennai!\n Cancel your trip!");
+                }
+                else{
+                alert("Bad weather conditions at Nellore, Nalgonda & Ongole: take alternate safe routes!!");
+                if (data.weather[0].description=="drizzle" || data.weather[0].description=="light rain" || data.weather[0].description=="moderate rain" || data.weather[0].description=="proximity shower rain")
+                {
+                  alert("Drizzle: Carry your umbrella");
+                }
+                if (data.weather[0],description=="light snow")
+                {
+                  alert("Snow: Carry your coat!!!");
+                }}
+              });
+            })  
+          //to hide dropdown options depending on choice of destination
+        document.getElementById('che1').style.display="block";
+        document.getElementById('che2').style.display="block";
+        document.getElementById('che3').style.display="block";
+        document.getElementById('ban1').style.display="none";
+        document.getElementById('ban2').style.display="none";
+         document.getElementById('pun1').style.display="none";
+        document.getElementById('pun2').style.display="none";  
+        
+      }
+      function beng(){
+        // AJAX call to Weather API in Bengaluru
+        $(document).ready(()=>{
+          var APIkey="fc0327598ba370a977a33d939e84e9ba";
+              let request=$.ajax({
+                url:'http://api.openweathermap.org/data/2.5/weather?q=Bangalore,IN'+'&appid='+APIkey,
+                method: 'GET',
+                crossDomain: true,
+              });
+              request.done((data)=>{
+                console.log(data);
+                //Weather info
+                alert("Weather at your destination:\nHumidity:"+data.main.humidity+"\nPressure:"+data.main.pressure+"\nTemperature:"+data.main.temp+"\nWind Speed:"+data.wind.speed);
+                alert(data.weather[0].main+":"+data.weather[0].description);
+                //alerts in case of bad weather at destination or waypoints
+                if (data.main.pressure<1000)
+                {
+                  alert("Low Pressure: Impending cyclones in Bengaluru\n Cancel your trip!");
+                }
+                else{
+                alert("Bad weather conditions at Kurnool  & Anantapur: take alternate safe routes!!");
+                if (data.weather[0].description=="drizzle" || data.weather[0].description=="light rain" || data.weather[0].description=="moderate rain" || data.weather[0].description=="proximity shower rain")
+                {
+                  alert("Drizzle: Carry your umbrella");
+                }
+                if (data.weather[0],description=="light snow")
+                {
+                  alert("Snow: Carry your coat!!!");
+                }}
+              });
+            })  
+        //to hide dropdown options based on choice of destination
+        document.getElementById('ban1').style.display="block";
+        document.getElementById('ban2').style.display="block";
+        document.getElementById('pun1').style.display="none";
+        document.getElementById('pun2').style.display="none";     
+        document.getElementById('che1').style.display="none";
+        document.getElementById('che2').style.display="none";
+        document.getElementById('che3').style.display="none";  
+      }
+      //displays route 
+      function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        var waypts = [];
+        var checkboxArray = document.getElementById('waypoints');
+        for (var i = 0; i < checkboxArray.length; i++) {
+          if (checkboxArray.options[i].selected) {
+            waypts.push({
+              location: checkboxArray[i].value,
+              stopover: true
+            });
+          }
+        }
+
+        directionsService.route({
+          origin: document.getElementById('start').value,
+          destination: document.getElementById('end').value,
+          waypoints: waypts,
+          optimizeWaypoints: true,
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+            var route = response.routes[0];
+            var summaryPanel = document.getElementById('directions-panel');
+            summaryPanel.innerHTML = '';
+            // For each route, display summary information.
+            for (var i = 0; i < route.legs.length; i++) {
+              var routeSegment = i + 1;
+              summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment +
+                  '</b><br>';
+              summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+              summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+              summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+            }
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDg6OT7vJbj5qurLRyfw6T9LQmJXG2_LBk&callback=initMap">
+    </script>
+  </body>
+</html>
